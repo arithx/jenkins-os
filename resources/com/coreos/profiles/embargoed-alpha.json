@@ -5,6 +5,6 @@
     "PARENT": "embargoed",
     "AWS_RELEASE_CREDS": "d919f31a-22a4-4272-a5d2-67b6d9555209",
     "GROUP": "alpha",
-    "GS_RELEASE_DOWNLOAD_ROOT": "gs://builds.release.core-os.net/embargoed/alpha",
-    "GS_RELEASE_ROOT": "gs://builds.release.core-os.net/embargoed/alpha",
+    "GS_RELEASE_DOWNLOAD_ROOT": "gs://builds.release.core-os.net/alpha",
+    "GS_RELEASE_ROOT": "gs://builds.release.core-os.net/alpha",
 }
