@@ -12,7 +12,7 @@
 
     "BUILDS_CLONE_URL": "ssh://core@35.184.87.17/~/manifest-builds.git",
     "BUILDS_CLONE_CREDS": "3d4319c2-bca1-47c8-a483-2f355c249e30",
-    "BUILDS_CLONE_URL": "ssh://core@35.184.87.17/~/manifest-builds.git",
+    "BUILDS_PUSH_URL": "ssh://core@35.184.87.17/~/manifest-builds.git",
     "BUILDS_PUSH_CREDS": "3d4319c2-bca1-47c8-a483-2f355c249e30",
 
     "GIT_AUTHOR_EMAIL": "jenkins@jenkins-os.prod.coreos.systems",
