@@ -81,7 +81,7 @@ node('coreos && amd64 && sudo') {
             extensions: [[$class: 'RelativeTargetDirectory',
                           relativeTargetDir: 'manifest'],
                          [$class: 'CleanBeforeCheckout']],
-            userRemoteConfigs: [[url: profile.MANIFEST_URL, name: 'origin']]
+            userRemoteConfigs: [[url: profile.MANIFEST_URL, name: 'origin', credentialsId: '3d4319c2-bca1-47c8-a483-2f355c249e30']]
         ]
     }
 
