@@ -95,11 +95,11 @@ pipeline {
                       find tectonic-installer/tests/smoke/aws/vars/ -type f -exec sed -i "s|tectonic.dev.coreos.systems|clnightly.dev.coreos.systems|g" {} \\;
                       find tectonic-installer/tests/smoke/aws/vars/ -type f -exec sed -i "s|eu-west-1|us-west-2|g" {} \\;
 
-                      sed -i "s|eu-west-1|us-west-2|g" examples/terraform.tfvars.aws
+                      sed -i "s|eu-west-1|us-west-2|g" tectonic-installer/examples/terraform.tfvars.aws
 
                       # Update the regions & base domain in smoke.sh
-                      sed -i "s|REGIONS=.*|REGIONS=(us-west-2)|g" tests/smoke/aws/smoke.sh
-                      sed -i "s|TF_VAR_base_domain=.*|TF_VAR_base_domain=clnightly.dev.coreos.systems|g" tests/smoke/aws/smoke.sh
+                      sed -i "s|REGIONS=.*|REGIONS=(us-west-2)|g" tectonic-installer/tests/smoke/aws/smoke.sh
+                      sed -i "s|TF_VAR_base_domain=.*|TF_VAR_base_domain=clnightly.dev.coreos.systems|g" tectonic-installer/tests/smoke/aws/smoke.sh
 
                       cd tectonic-installer/tests/rspec
                       bundler exec rubocop --cache false tests/rspec
