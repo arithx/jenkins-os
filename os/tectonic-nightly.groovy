@@ -93,6 +93,7 @@ pipeline {
                       ssh-keygen -t rsa -b 4096 -f $sshdir/$TF_VAR_tectonic_aws_ssh_key -N "" -q
                       kp=$(cat $sshdir/$TF_VAR_tectonic_aws_ssh_key.pub)
                       alias ssh="ssh -i $sshdir/$TF_VAR_tectonic_aws_ssh_key"
+                      eval `ssh-agent -s`
                       ssh-add $sshdir/$TF_VAR_tectonic_aws_ssh_key
                       aws ec2 import-key-pair --key-name=$TF_VAR_tectonic_aws_ssh_key --public-key-material "$kp" --region us-west-2
 
