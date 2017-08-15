@@ -43,6 +43,9 @@ pipeline {
         node('amd64 && docker') {
           withDockerContainer(params.builder_image) {
             sh """#!/bin/bash -ex
+            if [ -d "tectonic-installer" ]; then
+                rm -rf tectonic-installer
+            fi
             git clone https://github.com/coreos/tectonic-installer
 
             mkdir -p \$(dirname ${GO_PROJECT}) && ln -sf \$(pwd)/tectonic-installer ${GO_PROJECT}
