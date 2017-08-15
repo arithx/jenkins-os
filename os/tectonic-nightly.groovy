@@ -88,7 +88,7 @@ pipeline {
 
                       # Update the AMI
                       source <(curl -s https://storage.googleapis.com/builds.developer.core-os.net/boards/amd64-usr/current-master/version.txt)
-                      AMI=\$(curl -s https://storage.googleapis.com/builds.developer.core-os.net/boards/amd64-usr/${COREOS_VERSION}/coreos_production_ami_all.json | jq -cr '.amis[] | select(.name == "us-west-2") | .hvm')
+                      AMI=\$(curl -s https://storage.googleapis.com/builds.developer.core-os.net/boards/amd64-usr/\${COREOS_VERSION}/coreos_production_ami_all.json | jq -cr '.amis[] | select(.name == "us-west-2") | .hvm')
                       sed -i "s/\${data.aws_ami.coreos_ami.image_id}/\${AMI}/g" ${GO_PROJECT}/modules/aws/master-asg/master.tf
                       sed -i "s/\${data.aws_ami.coreos_ami.image_id}/\${AMI}/g" ${GO_PROJECT}/modules/aws/worker-asg/worker.tf
                       sed -i "s/\${data.aws_ami.coreos_ami.image_id}/\${AMI}/g" ${GO_PROJECT}/modules/aws/etcd/nodes.tf
@@ -101,7 +101,7 @@ pipeline {
 
                       # Update the regions & base domain in smoke.sh
                       sed -i "s|REGIONS=.*|REGIONS=(us-west-2)|g" tests/smoke/aws/smoke.sh
-                      sed -i "s|TF_VAR_base_domain=.*|TF_VAR_base_domain=${TF_VAR_tectonic_base_domain}|g" tests/smoke/aws/smoke.sh
+                      sed -i "s|TF_VAR_base_domain=.*|TF_VAR_base_domain=clnightly.dev.coreos.systems|g" tests/smoke/aws/smoke.sh
 
                       cd ${GO_PROJECT}/tests/rspec
                       bundler exec rubocop --cache false tests/rspec
