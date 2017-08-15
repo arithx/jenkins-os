@@ -89,7 +89,7 @@ pipeline {
                       # Create aws key-pair
                       sshdir=$(pwd)
                       shopt -s expand_aliases
-                      TF_VAR_tectonic_aws_ssh_key="tectonic-nightly-$(uuidgen)"
+                      TF_VAR_tectonic_aws_ssh_key="tectonic-nightly-$(date +%s | sha256sum | base64)"
                       ssh-keygen -t rsa -b 4096 -f $sshdir/$TF_VAR_tectonic_aws_ssh_key -N "" -q
                       kp=$(cat $sshdir/$kpname.pub)
                       alias ssh="ssh -i $sshdir/$kpname"
