@@ -42,8 +42,9 @@ pipeline {
       steps {
         node('amd64 && docker') {
           withDockerContainer(params.builder_image) {
-            checkout scm
             sh """#!/bin/bash -ex
+            git clone https://github.com/coreos/tectonic-installer
+
             ls ${WORKSPACE}
             mkdir -p \$(dirname ${GO_PROJECT}) && ln -sf ${WORKSPACE} ${GO_PROJECT}
 
@@ -92,6 +93,8 @@ pipeline {
                   checkout scm
                   unstash 'installer'
                     sh """#!/bin/bash -ex
+                      git clone https://github.com/coreos/tectonic-installer
+
                       # Update the AMI
                       source <(curl -s https://storage.googleapis.com/builds.developer.core-os.net/boards/amd64-usr/current-master/version.txt)
                       AMI=\$(curl -s https://storage.googleapis.com/builds.developer.core-os.net/boards/amd64-usr/${COREOS_VERSION}/coreos_production_ami_all.json | jq -cr '.amis[] | select(.name == "us-west-2") | .hvm')
