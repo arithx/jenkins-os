@@ -89,13 +89,13 @@ pipeline {
                       # Update the AMI
                       source <(curl -s https://storage.googleapis.com/builds.developer.core-os.net/boards/amd64-usr/current-master/version.txt)
                       AMI=\$(curl -s https://storage.googleapis.com/builds.developer.core-os.net/boards/amd64-usr/\${COREOS_VERSION}/coreos_production_ami_all.json | jq -cr '.amis[] | select(.name == "us-west-2") | .hvm')
-                      sed -i "s/\${data.aws_ami.coreos_ami.image_id}/\${AMI}/g" ${GO_PROJECT}/modules/aws/master-asg/master.tf
-                      sed -i "s/\${data.aws_ami.coreos_ami.image_id}/\${AMI}/g" ${GO_PROJECT}/modules/aws/worker-asg/worker.tf
-                      sed -i "s/\${data.aws_ami.coreos_ami.image_id}/\${AMI}/g" ${GO_PROJECT}/modules/aws/etcd/nodes.tf
+                      sed -i "s/\${data.aws_ami.coreos_ami.image_id}/\${AMI}/g" tectonic-installer/modules/aws/master-asg/master.tf
+                      sed -i "s/\${data.aws_ami.coreos_ami.image_id}/\${AMI}/g" tectonic-installer/modules/aws/worker-asg/worker.tf
+                      sed -i "s/\${data.aws_ami.coreos_ami.image_id}/\${AMI}/g" tectonic-installer/modules/aws/etcd/nodes.tf
 
                       # Update the base domain in vars
-                      find ${GO_PROJECT}/tests/smoke/aws/vars/ -type f -exec sed -i "s|tectonic.dev.coreos.systems|clnightly.dev.coreos.systems|g" {} \\;
-                      find ${GO_PROJECT}/tests/smoke/aws/vars/ -type f -exec sed -i "s|eu-west-1|us-west-2|g" {} \\;
+                      find tectonic-installer/tests/smoke/aws/vars/ -type f -exec sed -i "s|tectonic.dev.coreos.systems|clnightly.dev.coreos.systems|g" {} \\;
+                      find tectonic-installer/tests/smoke/aws/vars/ -type f -exec sed -i "s|eu-west-1|us-west-2|g" {} \\;
 
                       sed -i "s|eu-west-1|us-west-2|g" examples/terraform.tfvars.aws
 
@@ -103,7 +103,7 @@ pipeline {
                       sed -i "s|REGIONS=.*|REGIONS=(us-west-2)|g" tests/smoke/aws/smoke.sh
                       sed -i "s|TF_VAR_base_domain=.*|TF_VAR_base_domain=clnightly.dev.coreos.systems|g" tests/smoke/aws/smoke.sh
 
-                      cd ${GO_PROJECT}/tests/rspec
+                      cd tectonic-installer/tests/rspec
                       bundler exec rubocop --cache false tests/rspec
                       bundler exec rspec
                     """
