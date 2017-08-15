@@ -48,7 +48,6 @@ pipeline {
             mkdir -p \$(dirname ${GO_PROJECT}) && ln -sf \$(pwd)/tectonic-installer ${GO_PROJECT}
 
             cd ${GO_PROJECT}/
-            ls
             make bin/smoke
 
             cd ${GO_PROJECT}/installer
@@ -61,9 +60,9 @@ pipeline {
             make test
             rm -fr frontend/tests_output
             """
-            stash name: 'installer', includes: 'installer/bin/linux/installer'
-            stash name: 'node_modules', includes: 'installer/frontend/node_modules/**'
-            stash name: 'smoke', includes: 'bin/smoke'
+            stash name: 'installer', includes: 'tectonic-installer/installer/bin/linux/installer'
+            stash name: 'node_modules', includes: 'tectonic-installer/installer/frontend/node_modules/**'
+            stash name: 'smoke', includes: 'tectonic-installer/bin/smoke'
           }
           withDockerContainer(tectonic_smoke_test_env_image) {
             checkout scm
@@ -85,11 +84,9 @@ pipeline {
           "SmokeTest AWS RSpec on CL nightly": {
             node('amd64 && docker') {
               withCredentials(creds) {
-                checkout scm
                 unstash 'installer'
                 unstash 'smoke'
                 withDockerContainer(tectonic_smoke_test_env_image) {
-                  checkout scm
                   unstash 'installer'
                     sh """#!/bin/bash -ex
                       git clone https://github.com/coreos/tectonic-installer
