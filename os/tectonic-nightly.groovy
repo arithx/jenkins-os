@@ -84,6 +84,13 @@ pipeline {
                 withDockerContainer(tectonic_smoke_test_env_image) {
                   unstash 'installer'
                     sh """#!/bin/bash -ex
+                      # Create aws key-pair
+                      kpname="tectonic-nightly-\$(uuidgen)"
+                      ssh-keygen -t rsa -b 4096 -f ${WORKSPACE}/\$kpname -N "" -q
+                      kp=\$(cat ${WORKSPACE}/\$kpname.pub)
+                      alias ssh="ssh -i ${WORKSPACE}/\$kpname"
+                      aws ec2 import-key-pair --key-name=\$kpname --public-key-material \$kp
+
                       # Update the AMI
                       source <(curl -s https://storage.googleapis.com/builds.developer.core-os.net/boards/amd64-usr/current-master/version.txt)
                       AMI=\$(curl -s https://storage.googleapis.com/builds.developer.core-os.net/boards/amd64-usr/\${COREOS_VERSION}/coreos_production_ami_all.json | jq -r '.amis[] | select(.name == "us-west-2") | .hvm')
@@ -104,6 +111,13 @@ pipeline {
                       cd tectonic-installer/tests/rspec
                       bundler exec rubocop --cache false tests/rspec
                       bundler exec rspec
+                      
+                      # Delete aws key-pair
+                      unalias ssh
+                      aws ec2 delete-key-pair --key-name \$kpname
+                      alias ssh="ssh -i ${WORKSPACE}/\$kpname"
+                      rm ${WORKSPACE}/\$kpname
+                      rm ${WORKSPACE}/\$kpname.pub
                     """
                 }
               }
