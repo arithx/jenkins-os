@@ -66,13 +66,6 @@ pipeline {
             stash name: 'installer', includes: 'tectonic-installer/installer/bin/linux/installer'
             stash name: 'smoke', includes: 'tectonic-installer/bin/smoke'
           }
-          withDockerContainer(tectonic_smoke_test_env_image) {
-            checkout scm
-            sh"""#!/bin/bash -ex
-              cd tests/rspec
-              bundler exec rubocop --cache false tests/rspec
-            """
-          }
         }
       }
     }
@@ -111,6 +104,7 @@ pipeline {
                       sed -i "s|TF_VAR_base_domain=.*|TF_VAR_base_domain=${TF_VAR_tectonic_base_domain}|g" tests/smoke/aws/smoke.sh
 
                       cd ${GO_PROJECT}/tests/rspec
+                      bundler exec rubocop --cache false tests/rspec
                       bundler exec rspec
                     """
                 }
