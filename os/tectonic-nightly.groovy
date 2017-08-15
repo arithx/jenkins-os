@@ -93,7 +93,7 @@ pipeline {
                       ssh-keygen -t rsa -b 4096 -f $sshdir/$TF_VAR_tectonic_aws_ssh_key -N "" -q
                       kp=$(cat $sshdir/$TF_VAR_tectonic_aws_ssh_key.pub)
                       alias ssh="ssh -i $sshdir/$TF_VAR_tectonic_aws_ssh_key"
-                      aws ec2 import-key-pair --key-name=$TF_VAR_tectonic_aws_ssh_key --public-key-material '$kp' -region us-west-2
+                      aws ec2 import-key-pair --key-name=$TF_VAR_tectonic_aws_ssh_key --public-key-material '$kp' --region us-west-2
 
                       # Update the AMI
                       source <(curl -s https://storage.googleapis.com/builds.developer.core-os.net/boards/amd64-usr/current-master/version.txt)
@@ -118,7 +118,7 @@ pipeline {
                       
                       # Delete aws key-pair
                       unalias ssh
-                      aws ec2 delete-key-pair --key-name $TF_VAR_tectonic_aws_ssh_key -region us-west-2
+                      aws ec2 delete-key-pair --key-name $TF_VAR_tectonic_aws_ssh_key --region us-west-2
                       alias ssh="ssh -i $sshdir/$TF_VAR_tectonic_aws_ssh_key"
                       rm $sshdir/$TF_VAR_tectonic_aws_ssh_key
                       rm $sshdir/$TF_VAR_tectonic_aws_ssh_key.pub
