@@ -86,7 +86,7 @@ pipeline {
                     sh """#!/bin/bash -ex
                       # Update the AMI
                       source <(curl -s https://storage.googleapis.com/builds.developer.core-os.net/boards/amd64-usr/current-master/version.txt)
-                      AMI=\$(curl -s https://storage.googleapis.com/builds.developer.core-os.net/boards/amd64-usr/\${COREOS_VERSION}/coreos_production_ami_all.json | jq -cr '.amis[] | select(.name == "us-west-2") | .hvm')
+                      AMI=\$(curl -s https://storage.googleapis.com/builds.developer.core-os.net/boards/amd64-usr/\${COREOS_VERSION}/coreos_production_ami_all.json | jq -r '.amis[] | select(.name == "us-west-2") | .hvm')
                       sed -i "s/\${data.aws_ami.coreos_ami.image_id}/\${AMI}/g" tectonic-installer/modules/aws/master-asg/master.tf
                       sed -i "s/\${data.aws_ami.coreos_ami.image_id}/\${AMI}/g" tectonic-installer/modules/aws/worker-asg/worker.tf
                       sed -i "s/\${data.aws_ami.coreos_ami.image_id}/\${AMI}/g" tectonic-installer/modules/aws/etcd/nodes.tf
