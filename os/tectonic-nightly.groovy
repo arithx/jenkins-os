@@ -43,12 +43,14 @@ pipeline {
         node('amd64 && docker') {
           withDockerContainer(params.builder_image) {
             sh """#!/bin/bash -ex
+            GO_PROJECT=${GO_PROJECT}
+            """ + '''
             if [ -d "tectonic-installer" ]; then
                 rm -rf tectonic-installer
             fi
             git clone https://github.com/coreos/tectonic-installer
 
-            mkdir -p \$(dirname ${GO_PROJECT}) && ln -sf \$(pwd)/tectonic-installer ${GO_PROJECT}
+            mkdir -p $(dirname ${GO_PROJECT}) && ln -sf $(pwd)/tectonic-installer ${GO_PROJECT}
 
             cd ${GO_PROJECT}/
             make bin/smoke
@@ -62,7 +64,7 @@ pipeline {
             make lint
             make test
             rm -fr frontend/tests_output
-            """
+            '''
             stash name: 'installer', includes: 'tectonic-installer/installer/bin/linux/installer'
             stash name: 'smoke', includes: 'tectonic-installer/bin/smoke'
           }
