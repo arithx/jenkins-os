@@ -111,7 +111,7 @@ pipeline {
                       sed -i "s|REGIONS=.*|REGIONS=(us-west-2)|g" tests/smoke/aws/smoke.sh
                       sed -i "s|TF_VAR_base_domain=.*|TF_VAR_base_domain=${TF_VAR_tectonic_base_domain}|g" tests/smoke/aws/smoke.sh
 
-                      cd tests/rspec
+                      cd ${GO_PROJECT}/tests/rspec
                       bundler exec rspec
                     """
                 }
