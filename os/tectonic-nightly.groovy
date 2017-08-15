@@ -87,11 +87,11 @@ pipeline {
                       # Create aws key-pair
                       sshdir=$(pwd)
                       shopt -s expand_aliases
-                      kpname="tectonic-nightly-$(uuidgen)"
-                      ssh-keygen -t rsa -b 4096 -f $sshdir/$kpname -N "" -q
+                      TF_VAR_tectonic_aws_ssh_key="tectonic-nightly-$(uuidgen)"
+                      ssh-keygen -t rsa -b 4096 -f $sshdir/$TF_VAR_tectonic_aws_ssh_key -N "" -q
                       kp=$(cat $sshdir/$kpname.pub)
                       alias ssh="ssh -i $sshdir/$kpname"
-                      aws ec2 import-key-pair --key-name=$kpname --public-key-material $kp
+                      aws ec2 import-key-pair --key-name=$TF_VAR_tectonic_aws_ssh_key --public-key-material $kp
 
                       # Update the AMI
                       source <(curl -s https://storage.googleapis.com/builds.developer.core-os.net/boards/amd64-usr/current-master/version.txt)
@@ -116,10 +116,10 @@ pipeline {
                       
                       # Delete aws key-pair
                       unalias ssh
-                      aws ec2 delete-key-pair --key-name $kpname
-                      alias ssh="ssh -i $sshdir/$kpname"
-                      rm $sshdir/$kpname
-                      rm $sshdir/$kpname.pub
+                      aws ec2 delete-key-pair --key-name $TF_VAR_tectonic_aws_ssh_key
+                      alias ssh="ssh -i $sshdir/$TF_VAR_tectonic_aws_ssh_key"
+                      rm $sshdir/$TF_VAR_tectonic_aws_ssh_key
+                      rm $sshdir/$TF_VAR_tectonic_aws_ssh_key.pub
                     '''
                 }
               }
