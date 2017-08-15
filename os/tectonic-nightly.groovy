@@ -64,7 +64,6 @@ pipeline {
             rm -fr frontend/tests_output
             """
             stash name: 'installer', includes: 'tectonic-installer/installer/bin/linux/installer'
-            stash name: 'node_modules', includes: 'tectonic-installer/installer/frontend/node_modules/**'
             stash name: 'smoke', includes: 'tectonic-installer/bin/smoke'
           }
           withDockerContainer(tectonic_smoke_test_env_image) {
