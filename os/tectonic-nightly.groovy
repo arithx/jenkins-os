@@ -44,7 +44,7 @@ pipeline {
           withDockerContainer(params.builder_image) {
             sh """#!/bin/bash -ex
             git clone https://github.com/coreos/tectonic-installer
-            TECTONIC_DIR="$(pwd)/tectonic-installer"
+            TECTONIC_DIR="\$(pwd)/tectonic-installer"
 
             mkdir -p \$(dirname ${GO_PROJECT}) && ln -sf ${TECTONIC_DIR} ${GO_PROJECT}
 
