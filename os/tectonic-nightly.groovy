@@ -83,24 +83,26 @@ pipeline {
                 unstash 'smoke'
                 withDockerContainer(tectonic_smoke_test_env_image) {
                   unstash 'installer'
-                    sh """#!/bin/bash -ex
+                    sh '''#!/bin/bash -ex
                       # Create aws key-pair
-                      kpname="tectonic-nightly-\$(uuidgen)"
-                      ssh-keygen -t rsa -b 4096 -f ${WORKSPACE}/\$kpname -N "" -q
-                      kp=\$(cat ${WORKSPACE}/\$kpname.pub)
-                      alias ssh="ssh -i ${WORKSPACE}/\$kpname"
-                      aws ec2 import-key-pair --key-name=\$kpname --public-key-material \$kp
+                      sshdir=$(pwd)
+                      shopt -s expand_aliases
+                      kpname="tectonic-nightly-$(uuidgen)"
+                      ssh-keygen -t rsa -b 4096 -f $sshdir/$kpname -N "" -q
+                      kp=$(cat $sshdir/$kpname.pub)
+                      alias ssh="ssh -i $sshdir/$kpname"
+                      aws ec2 import-key-pair --key-name=$kpname --public-key-material $kp
 
                       # Update the AMI
                       source <(curl -s https://storage.googleapis.com/builds.developer.core-os.net/boards/amd64-usr/current-master/version.txt)
-                      AMI=\$(curl -s https://storage.googleapis.com/builds.developer.core-os.net/boards/amd64-usr/\${COREOS_VERSION}/coreos_production_ami_all.json | jq -r '.amis[] | select(.name == "us-west-2") | .hvm')
-                      sed -i "s/\\\${data.aws_ami.coreos_ami.image_id}/\${AMI}/g" tectonic-installer/modules/aws/master-asg/master.tf
-                      sed -i "s/\\\${data.aws_ami.coreos_ami.image_id}/\${AMI}/g" tectonic-installer/modules/aws/worker-asg/worker.tf
-                      sed -i "s/\\\${data.aws_ami.coreos_ami.image_id}/\${AMI}/g" tectonic-installer/modules/aws/etcd/nodes.tf
+                      AMI=$(curl -s https://storage.googleapis.com/builds.developer.core-os.net/boards/amd64-usr/${COREOS_VERSION}/coreos_production_ami_all.json | jq -r '.amis[] | select(.name == "us-west-2") | .hvm')
+                      sed -i "s/\${data.aws_ami.coreos_ami.image_id}/${AMI}/g" tectonic-installer/modules/aws/master-asg/master.tf
+                      sed -i "s/\${data.aws_ami.coreos_ami.image_id}/${AMI}/g" tectonic-installer/modules/aws/worker-asg/worker.tf
+                      sed -i "s/\${data.aws_ami.coreos_ami.image_id}/${AMI}/g" tectonic-installer/modules/aws/etcd/nodes.tf
 
                       # Update the base domain in vars
-                      find tectonic-installer/tests/smoke/aws/vars/ -type f -exec sed -i "s|tectonic.dev.coreos.systems|clnightly.dev.coreos.systems|g" {} \\;
-                      find tectonic-installer/tests/smoke/aws/vars/ -type f -exec sed -i "s|eu-west-1|us-west-2|g" {} \\;
+                      find tectonic-installer/tests/smoke/aws/vars/ -type f -exec sed -i "s|tectonic.dev.coreos.systems|clnightly.dev.coreos.systems|g" {} \;
+                      find tectonic-installer/tests/smoke/aws/vars/ -type f -exec sed -i "s|eu-west-1|us-west-2|g" {} \;
 
                       sed -i "s|eu-west-1|us-west-2|g" tectonic-installer/examples/terraform.tfvars.aws
 
@@ -114,11 +116,11 @@ pipeline {
                       
                       # Delete aws key-pair
                       unalias ssh
-                      aws ec2 delete-key-pair --key-name \$kpname
-                      alias ssh="ssh -i ${WORKSPACE}/\$kpname"
-                      rm ${WORKSPACE}/\$kpname
-                      rm ${WORKSPACE}/\$kpname.pub
-                    """
+                      aws ec2 delete-key-pair --key-name $kpname
+                      alias ssh="ssh -i $sshdir/$kpname"
+                      rm $sshdir/$kpname
+                      rm $sshdir/$kpname.pub
+                    '''
                 }
               }
             }
