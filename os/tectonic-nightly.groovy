@@ -101,8 +101,8 @@ pipeline {
                       sed -i "s/\${data.aws_ami.coreos_ami.image_id}/${AMI}/g" tectonic-installer/modules/aws/etcd/nodes.tf
 
                       # Update the base domain in vars
-                      find tectonic-installer/tests/smoke/aws/vars/ -type f -exec sed -i "s|tectonic.dev.coreos.systems|clnightly.dev.coreos.systems|g" {} \;
-                      find tectonic-installer/tests/smoke/aws/vars/ -type f -exec sed -i "s|eu-west-1|us-west-2|g" {} \;
+                      find tectonic-installer/tests/smoke/aws/vars/ -type f -exec sed -i "s|tectonic.dev.coreos.systems|clnightly.dev.coreos.systems|g" {} \\;
+                      find tectonic-installer/tests/smoke/aws/vars/ -type f -exec sed -i "s|eu-west-1|us-west-2|g" {} \\;
 
                       sed -i "s|eu-west-1|us-west-2|g" tectonic-installer/examples/terraform.tfvars.aws
 
