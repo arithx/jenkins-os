@@ -44,9 +44,11 @@ pipeline {
           withDockerContainer(params.builder_image) {
             checkout scm
             sh """#!/bin/bash -ex
+            ls ${WORKSPACE}
             mkdir -p \$(dirname ${GO_PROJECT}) && ln -sf ${WORKSPACE} ${GO_PROJECT}
 
             cd ${GO_PROJECT}/
+            ls
             make bin/smoke
 
             cd ${GO_PROJECT}/installer
