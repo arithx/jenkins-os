@@ -33,8 +33,8 @@ pipeline {
     )
   }
 
-  stages {
-    node('amd64 && docker') {
+  node('amd64 && docker') {
+    stages {
       stage('Build & Test') {
         environment {
           GO_PROJECT = '/go/src/github.com/coreos/tectonic-installer'
