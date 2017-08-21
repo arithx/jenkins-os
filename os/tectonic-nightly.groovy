@@ -18,22 +18,23 @@ def creds = [
 def default_builder_image = 'quay.io/coreos/tectonic-builder:v1.36'
 def tectonic_smoke_test_env_image = 'quay.io/coreos/tectonic-smoke-test-env:v3.0'
 
-pipeline {
-  agent none
-  options {
-    timeout(time:70, unit:'MINUTES')
-    timestamps()
-    buildDiscarder(logRotator(numToKeepStr:'100'))
-  }
-  parameters {
-    string(
-      name: 'builder_image',
-      defaultValue: default_builder_image,
-      description: 'tectonic-builder docker image to use for builds'
-    )
-  }
 
-  node('amd64 && docker') {
+node('amd64 && docker') {
+  pipeline {
+    agent none
+    options {
+      timeout(time:70, unit:'MINUTES')
+      timestamps()
+      buildDiscarder(logRotator(numToKeepStr:'100'))
+    }
+    parameters {
+      string(
+        name: 'builder_image',
+        defaultValue: default_builder_image,
+        description: 'tectonic-builder docker image to use for builds'
+      )
+    }
+
     stages {
       stage('Build & Test') {
         environment {
