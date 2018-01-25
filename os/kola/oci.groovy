@@ -164,6 +164,9 @@ do
         break;
     fi
 done
+
+# Sleep for 5 minutes to test if a delay reduces flakes on the semver test
+sleep 5m
 EOF
 
 image_id=$(<src/image_id)
@@ -177,7 +180,7 @@ ocienv/bin/oci compute image delete --image-id "${image_id}" --force;
 EOF
 } && rm -rf src/.oci/ ~/.oci/' EXIT
 
-NAME="jenkins-${JOB_NAME##*/}-${BUILD_NUMBER}"
+NAME="jenkins-oci-delay-${BUILD_NUMBER}"
 
 timeout --signal=SIGQUIT 300m bin/kola run \
     --parallel=1 \
