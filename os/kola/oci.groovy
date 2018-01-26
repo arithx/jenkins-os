@@ -176,7 +176,7 @@ cp -r /mnt/host/source/src/.oci ~/;
 export LC_ALL=C.UTF-8;
 export LANG=C.UTF-8;
 trap "rm -rf ~/.oci/" EXIT;
-ocienv/bin/oci compute image delete --image-id "${image_id}" --force;
+#ocienv/bin/oci compute image delete --image-id "${image_id}" --force;
 EOF
 } && rm -rf src/.oci/ ~/.oci/' EXIT
 
