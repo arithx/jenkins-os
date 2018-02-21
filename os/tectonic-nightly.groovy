@@ -1,7 +1,8 @@
 #!/usr/bin/env groovy
 
 def default_builder_image = 'quay.io/coreos/tectonic-builder:v1.44'
-def tectonic_smoke_test_env_image = 'quay.io/coreos/tectonic-smoke-test-env:v5.15'
+def tectonic_smoke_test_env_image = 'quay.io/coreos/tectonic-smoke-test-env:v5.16'
+def tectonic_bazel_image = 'quay.io/coreos/tectonic-builder:bazel-v0.3'
 
 properties([
     parameters([
@@ -55,17 +56,27 @@ node('amd64 && docker') {
 
                 mkdir -p "${GO_PROJECT%/*}"
                 ln -fns "$(pwd)/tectonic-installer" "${GO_PROJECT}"
-
-                cd ${GO_PROJECT}/
-                make bin/smoke
-
-                cd ${GO_PROJECT}/installer
-                make clean
-                make tools
-                make build
                 '''
             }
         }
+        withDockerContainer(tectonic_bazel_image) {
+            withEnv(["GO_PROJECT=/go/src/github.com/coreos/tectonic-installer",
+                     "MAKEFLAGS=-j4"]) {
+                sh '''#!/bin/bash -ex
+                cd tectonic-installer/
+
+                bazel build tarball tests/smoke
+
+                cp bazel-bin/tectonic.tar.gz .
+                cp bazel-bin/tests/smoke/linux_amd64_stripped/smoke .
+
+                chmod 0644 tectonic.tar.gz
+                chmod 0755 smoke
+                '''
+            }
+        }
+        stash name: 'tectonic.tar.gz', includes: 'tectonic-installer/tectonic.tar.gz'
+        stash name: 'smoke-tests', includes: 'tectonic-installer/smoke'
     }
     stage("Tests") {
         withCredentials([
@@ -86,6 +97,8 @@ node('amd64 && docker') {
                          "AMI=${params.AMI}",
                          "TF_VAR_tectonic_base_domain=${params.TF_VAR_tectonic_base_domain}",
                          "TF_VAR_tectonic_aws_region=${params.TF_VAR_tectonic_aws_region}"]) {
+                    unstash 'tectonic.tar.gz'
+                    unstash 'smoke-tests'
                     rc = sh returnStatus: true, script: '''#!/bin/bash -ex
                     function cleanup {
                         # Delete aws key-pair
@@ -99,7 +112,14 @@ node('amd64 && docker') {
                     }
                     trap cleanup EXIT
 
+                    ls
+                    ls tectonic-installer
                     cd tectonic-installer
+                    rm -rf bazel*
+
+                    mkdir -p bazel-bin/tests/smoke/linux_amd64_stripped/
+                    cp tectonic.tar.gz bazel-bin/.
+                    cp smoke bazel-bin/tests/smoke/linux_amd64_stripped/.
 
                     export TF_VAR_tectonic_admin_email=buildbot@coreos.com
 
@@ -132,7 +152,12 @@ node('amd64 && docker') {
                     sed -i "s/expect(ContainerLinux/# expect(ContainerLinux/g" tests/rspec/lib/shared_examples/k8s.rb
 
                     # Change the base domain in the aws.tfvars (the environment variable is ignored for some reason)
-                    sed -i "s/tectonic-ci.de/$TF_VAR_tectonic_base_domain/g" tests/smoke/aws/vars/aws.tfvars.json
+                    #sed -i "s/tectonic-ci.de/$TF_VAR_tectonic_base_domain/g" tests/smoke/aws/vars/aws.tfvars.json
+                    sed -i "s/tectonic-ci.de/$TF_VAR_tectonic_base_domain/g" tests/smoke/aws/vars/aws-basic.yaml
+                    #sed -i "s/tectonic-ci.de/$TF_VAR_tectonic_base_domain/g" contrib/internal-cluster/vars.tf
+                    #sed -i "s/tectonic-ci.de/$TF_VAR_tectonic_base_domain/g" tests/rspec/lib/aws_cluster.rb
+                    #sed -i "s/tectonic-ci.de/$TF_VAR_tectonic_base_domain/g" installer/pkg/workflow/fixtures/aws-basic.yaml
+                    #sed -i "s/tectonic-ci.de/$TF_VAR_tectonic_base_domain/g" installer/pkg/workflow/fixtures/terraform.tfvars
 
                     mkdir -p templogfiles && chmod 777 templogfiles
                     cd tests/rspec
