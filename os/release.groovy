@@ -25,6 +25,16 @@ properties([
                     description: 'JSON credentials file for the GCE releases service account',
                     name: 'GCE_CREDS',
                     required: true),
+        credentials(credentialType: 'org.jenkinsci.plugins.plaincredentials.impl.FileCredentialsImpl',
+                    defaultValue: '2103e2c7-4847-4686-981f-44520878cdd1',
+                    description: 'Configuration file with credentials to perform releases',
+                    name: 'OCI_RELEASE_CONFIG',
+                    required: true),
+        credentials(credentialType: 'org.jenkinsci.plugins.plaincredentials.impl.FileCredentialsImpl',
+                    defaultValue: 'fcf6674f-612c-4daf-adc6-b4944757a18e',
+                    description: 'RSA Key in PEM format referenced by config',
+                    name: 'OCI_RELEASE_KEY',
+                    required: true),
     ])
 ])
 
@@ -43,6 +53,14 @@ node('amd64') {
             withEnv(["CHANNEL=${params.CHANNEL}",
                      "VERSION=${params.VERSION}"]) {
                 sh '''#!/bin/bash -ex
+rm -rf ~/.oci
+mkdir  --mode=0700 ~/.oci
+mv ${OCI_RELEASE_CONFIG} ~/.oci/config
+mv ${OCI_RELEASE_KEY} ~/.oci/oci_api_key.pem
+touch ~/.oci/config.mantle
+chmod 0600 ~/.oci/*
+trap 'rm -rf ~/.oci/' EXIT
+
 case "${CHANNEL}" in
     stable)
         boards=( amd64-usr )
