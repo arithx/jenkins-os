@@ -84,6 +84,7 @@ test -d coreos-pages/_os/${base ?: '.'}  # sanity check
 git clone --depth=1 ${pagesUrl} pages
 git -C coreos-pages config user.name '${gitAuthor}'
 git -C coreos-pages config user.email '${gitEmail}'
+git -C coreos-pages checkout revert_2247-3-0
 git -C coreos-pages checkout -B ${branch}
 """  /* Editor quote safety: " */
         }
